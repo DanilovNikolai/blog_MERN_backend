@@ -2,6 +2,8 @@ import express from 'express';
 import 'dotenv/config';
 // для работы с MongoDB
 import mongoose from 'mongoose';
+// json web tokens
+import jwt from 'jsonwebtoken';
 
 const PORT = process.env.PORT;
 const app = express();
