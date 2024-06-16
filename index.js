@@ -14,8 +14,15 @@ mongoose
   .then(() => console.log('DB ok'))
   .catch((err) => console.log('DB error', err));
 
+// middleware (for reading req.body)
+app.use(express.json());
+
 // routes
 app.get('/', (req, res) => console.log('Route test'));
+
+app.post('/auth/register', (req, res) => {
+  res.send('Auth');
+});
 
 app.listen(PORT, (err) => {
   if (err) console.log(err);
