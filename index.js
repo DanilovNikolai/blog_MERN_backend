@@ -18,7 +18,7 @@ const app = express();
 // data base connection
 mongoose
   .connect(
-    `mongodb+srv://Danilov:${process.env.DB_PASSWORD}@test-cluster.9rnehkm.mongodb.net/?retryWrites=true&w=majority&appName=Test-cluster`
+    `mongodb+srv://Danilov:${process.env.DB_PASSWORD}@test-cluster.9rnehkm.mongodb.net/blog?retryWrites=true&w=majority&appName=Test-cluster`
   )
   .then(() => console.log('DB ok'))
   .catch((err) => console.log('DB error', err));
@@ -32,29 +32,37 @@ app.get('/', (req, res) => {
 });
 
 app.post('/auth/register', registerValidation, async (req, res) => {
-  const errors = validationResult(req);
+  try {
+    const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(400).json(errors.array());
+    if (!errors.isEmpty()) {
+      return res.status(400).json(errors.array());
+    }
+
+    const password = req.body.password;
+    // алгоритм шифрования пароля
+    const salt = await bcrypt.genSalt(10);
+    // сохраняем зашифрованный пароль в переменной
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // документ на создание пользователя
+    const doc = new UserModel({
+      email: req.body.email,
+      fullName: req.body.fullName,
+      passwordHash: passwordHash,
+      avatarUrl: req.body.avatarUrl,
+    });
+
+    // сохраняем нового пользователя в mongoDB
+    const user = await doc.save();
+    res.json(user);
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Registration was failed',
+    });
   }
-
-  const password = req.body.password;
-  // алгоритм шифрования пароля
-  const salt = await bcrypt.genSalt(10);
-  // сохраняем зашифрованный пароль в переменной
-  const passwordHash = await bcrypt.hash(password, salt);
-
-  // документ на создание пользователя
-  const doc = new UserModel({
-    email: req.body.email,
-    fullname: req.body.fullname,
-    passwordHash: passwordHash,
-    avatarUrl: req.body.avatarUrl,
-  });
-
-  res.json({
-    success: true,
-  });
 });
 
 app.listen(PORT, (err) => {
