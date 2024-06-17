@@ -8,6 +8,8 @@ import jwt from 'jsonwebtoken';
 import { registerValidation } from './validations/auth.js';
 import { validationResult } from 'express-validator';
 
+import UserModel from './models/User.js';
+
 const PORT = process.env.PORT;
 const app = express();
 
@@ -33,6 +35,14 @@ app.post('/auth/register', registerValidation, (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json(errors.array());
   }
+
+  // документ на создание пользователя
+  const doc = new UserModel({
+    email: req.body.email,
+    fullname: req.body.fullname,
+    passwordHash: req.body.passwordHash,
+    avatarUrl: req.body.avatarUrl,
+  });
 
   res.json({
     success: true,
