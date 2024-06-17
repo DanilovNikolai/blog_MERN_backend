@@ -4,6 +4,8 @@ import 'dotenv/config';
 import mongoose from 'mongoose';
 // json web tokens
 import jwt from 'jsonwebtoken';
+// for passwords encryption
+import bcrypt from 'bcrypt';
 // validations
 import { registerValidation } from './validations/auth.js';
 import { validationResult } from 'express-validator';
@@ -29,18 +31,24 @@ app.get('/', (req, res) => {
   res.send('Main Page');
 });
 
-app.post('/auth/register', registerValidation, (req, res) => {
+app.post('/auth/register', registerValidation, async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     return res.status(400).json(errors.array());
   }
 
+  const password = req.body.password;
+  // алгоритм шифрования пароля
+  const salt = await bcrypt.genSalt(10);
+  // сохраняем зашифрованный пароль в переменной
+  const passwordHash = await bcrypt.hash(password, salt);
+
   // документ на создание пользователя
   const doc = new UserModel({
     email: req.body.email,
     fullname: req.body.fullname,
-    passwordHash: req.body.passwordHash,
+    passwordHash: passwordHash,
     avatarUrl: req.body.avatarUrl,
   });
 
