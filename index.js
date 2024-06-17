@@ -43,20 +43,33 @@ app.post('/auth/register', registerValidation, async (req, res) => {
     // алгоритм шифрования пароля
     const salt = await bcrypt.genSalt(10);
     // сохраняем зашифрованный пароль в переменной
-    const passwordHash = await bcrypt.hash(password, salt);
+    const hash = await bcrypt.hash(password, salt);
 
     // документ на создание пользователя
     const doc = new UserModel({
       email: req.body.email,
       fullName: req.body.fullName,
-      passwordHash: passwordHash,
+      passwordHash: hash,
       avatarUrl: req.body.avatarUrl,
     });
 
     // сохраняем нового пользователя в mongoDB
     const user = await doc.save();
-    res.json(user);
-    
+
+    // шифруем id
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      'secret',
+      {
+        expiresIn: '30d',
+      }
+    );
+
+    const { passwordHash, ...userData } = user._doc;
+
+    res.json({ ...userData, token });
   } catch (error) {
     console.log(error);
     res.status(500).json({
