@@ -31,6 +31,56 @@ app.get('/', (req, res) => {
   res.send('Main Page');
 });
 
+// авторизация
+app.post('./auth/login', async (req, res) => {
+  try {
+    // ищем пользователя в БД по email
+    const user = await UserModel.findOne({ email: req.body.email });
+
+    if (!user) {
+      return req.status(404).json({
+        message: 'Invalid login or password',
+      });
+    }
+
+    // сравниваем пароль из БД и тот, что ввёл клиент
+    const isValidPassword = await bcrypt.compare(
+      req.body.password,
+      user._doc.passwordHash
+    );
+
+    if (!isValidPassword) {
+      return req.status(404).json({
+        message: 'Invalid login or password',
+      });
+    }
+
+    // Если пользователь нашелся и пароль валидный, то выполняется код ниже
+    // Генерируем токен
+    const token = jwt.sign(
+      {
+        _id: user._id,
+      },
+      'secret',
+      {
+        expiresIn: '30d',
+      }
+    );
+
+    // Убираем захэшированный пароль из информации о пользователе
+    const { passwordHash, ...userData } = user._doc;
+
+    // Возвращаем ответ клиенту
+    res.json({ ...userData, token });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Login was failed',
+    });
+  }
+});
+
+// регистрация
 app.post('/auth/register', registerValidation, async (req, res) => {
   try {
     const errors = validationResult(req);
