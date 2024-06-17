@@ -11,6 +11,7 @@ import { registerValidation } from './validations/auth.js';
 import { validationResult } from 'express-validator';
 
 import UserModel from './models/User.js';
+import checkAuth from './utils/checkAuth.js';
 
 const PORT = process.env.PORT;
 const app = express();
@@ -26,19 +27,35 @@ mongoose
 // middleware (for reading req.body)
 app.use(express.json());
 
-// routes
-app.get('/', (req, res) => {
-  res.send('Main Page');
+// Получение данных о пользователе
+app.get('/auth/me', checkAuth, async (req, res) => {
+  try {
+    // Ищем пользователя по расшифрованному id
+    const user = await UserModel.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User is not found' });
+    }
+
+    // Убираем захэшированный пароль из информации о пользователе
+    const { passwordHash, ...userData } = user._doc;
+
+    // Возвращаем ответ клиенту
+    res.json({ ...userData });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Not available' });
+  }
 });
 
-// авторизация
-app.post('./auth/login', async (req, res) => {
+// Авторизация
+app.post('/auth/login', async (req, res) => {
   try {
     // ищем пользователя в БД по email
     const user = await UserModel.findOne({ email: req.body.email });
 
     if (!user) {
-      return req.status(404).json({
+      return res.status(404).json({
         message: 'Invalid login or password',
       });
     }
@@ -50,7 +67,7 @@ app.post('./auth/login', async (req, res) => {
     );
 
     if (!isValidPassword) {
-      return req.status(404).json({
+      return res.status(404).json({
         message: 'Invalid login or password',
       });
     }
