@@ -4,6 +4,9 @@ import 'dotenv/config';
 import mongoose from 'mongoose';
 // json web tokens
 import jwt from 'jsonwebtoken';
+// validations
+import { registerValidation } from './validations/auth.js';
+import { validationResult } from 'express-validator';
 
 const PORT = process.env.PORT;
 const app = express();
@@ -20,10 +23,20 @@ mongoose
 app.use(express.json());
 
 // routes
-app.get('/', (req, res) => console.log('Route test'));
+app.get('/', (req, res) => {
+  res.send('Main Page');
+});
 
-app.post('/auth/register', (req, res) => {
-  res.send('Auth');
+app.post('/auth/register', registerValidation, (req, res) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json(errors.array());
+  }
+
+  res.json({
+    success: true,
+  });
 });
 
 app.listen(PORT, (err) => {
