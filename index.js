@@ -27,18 +27,14 @@ mongoose
 // middleware (for reading req.body)
 app.use(express.json());
 
-// Getting data of user
 app.get('/auth/me', checkAuth, UserController.getMe);
-// Auth / login
 app.post('/auth/login', loginValidation, UserController.login);
-// Registration
 app.post('/auth/register', registerValidation, UserController.register);
 
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
-// Post creation
 app.post('/posts', checkAuth, postCreateValidation, PostController.create);
-// app.delete('/posts/:id', PostController.remove);
+app.delete('/posts/:id', checkAuth, PostController.remove);
 // app.patch('/posts', PostController.update);
 
 app.listen(PORT, (err) => {

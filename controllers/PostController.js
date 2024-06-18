@@ -23,14 +23,42 @@ export const getOne = async (req, res) => {
       { $inc: { viewsCount: 1 } }, // увеличиваем кол-во просмотров на 1
       { returnDocument: 'after' } // и возвращаем в БД документ с обновленным кол-вом просмотров
     )
-      .then((doc) => res.json(doc))
+      .then((doc) => {
+        if (!doc) {
+          return res.status(404).json({ message: 'Статья не найдена' });
+        }
+
+        res.json(doc);
+      })
       .catch((err) => {
         console.log(err);
-        res.status(500).json({ message: 'Статья не найдена' });
+        res.status(500).json({ message: 'Не удалось получить статью' });
       });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Не удалось получить статью' });
+  }
+};
+
+export const remove = async (req, res) => {
+  try {
+    const postId = req.params.id; // сохраняем в postId введенный клиентом параметр query /:id
+
+    PostModel.findOneAndDelete({ _id: postId })
+      .then((doc) => {
+        if (!doc) {
+          return res.status(404).json({ message: 'Статья не найдена' });
+        }
+
+        res.json({ success: true });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({ message: 'Не удалось удалить статью' });
+      });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Не удалось удалить статью' });
   }
 };
 
