@@ -3,7 +3,7 @@ import 'dotenv/config';
 // для работы с MongoDB
 import mongoose from 'mongoose';
 // validations
-import { registerValidation } from './validations/auth.js';
+import { registerValidation, loginValidation } from './validations.js';
 
 import checkAuth from './utils/checkAuth.js';
 import * as UserController from './controllers/UserController.js';
@@ -25,7 +25,7 @@ app.use(express.json());
 // Getting data of user
 app.get('/auth/me', checkAuth, UserController.getMe);
 // Auth / login
-app.post('/auth/login', UserController.login);
+app.post('/auth/login', loginValidation, UserController.login);
 // Registration
 app.post('/auth/register', registerValidation, UserController.register);
 
