@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import 'dotenv/config';
 // для работы с MongoDB
 import mongoose from 'mongoose';
@@ -15,6 +16,16 @@ import * as PostController from './controllers/PostController.js';
 
 const PORT = process.env.PORT;
 const app = express();
+
+// Создаем хранилище для загруженных картинок
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (_, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 
 // data base connection
 mongoose
