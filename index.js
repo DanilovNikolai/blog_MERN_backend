@@ -1,5 +1,7 @@
 import express from 'express';
 import multer from 'multer';
+// cors
+import cors from 'cors';
 import 'dotenv/config';
 // для работы с MongoDB
 import mongoose from 'mongoose';
@@ -39,6 +41,7 @@ mongoose
 
 // middleware (for reading req.body)
 app.use(express.json());
+app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
 // routes
