@@ -23,6 +23,7 @@ export const getOne = async (req, res) => {
       { $inc: { viewsCount: 1 } }, // увеличиваем кол-во просмотров на 1
       { returnDocument: 'after' } // и возвращаем в БД документ с обновленным кол-вом просмотров
     )
+      .populate('user')
       .then((doc) => {
         if (!doc) {
           return res.status(404).json({ message: 'Статья не найдена' });
