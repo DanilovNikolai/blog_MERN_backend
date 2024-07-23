@@ -14,6 +14,34 @@ export const getAll = async (req, res) => {
   }
 };
 
+export const getLatest = async (req, res) => {
+  try {
+    // Сортируем по дате создания поста
+    const posts = await PostModel.find().sort({"createdAt": 1 })
+      .populate({ path: 'user', select: ['fullName', 'avatarUrl'] }) // связываемся с таблицей 'user' и оставляем поля 'fullName' и 'avatarUrl'
+      .exec(); // исполняем
+
+    res.json(posts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Не удалось получить статьи' });
+  }
+};
+
+export const getPopular = async (req, res) => {
+  try {
+    // Сортируем по количеству просмотров
+    const posts = await PostModel.find().sort({"viewsCount": -1 })
+      .populate({ path: 'user', select: ['fullName', 'avatarUrl'] }) // связываемся с таблицей 'user' и оставляем поля 'fullName' и 'avatarUrl'
+      .exec(); // исполняем
+
+    res.json(posts);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Не удалось получить статьи' });
+  }
+};
+
 export const getOne = async (req, res) => {
   try {
     const postId = req.params.id; // сохраняем в postId введенный клиентом параметр query /:id
@@ -91,7 +119,7 @@ export const update = async (req, res) => {
       {
         title: req.body.title,
         text: req.body.text,
-        tags: req.body.tags,
+        tags: req.body.tags.split(','),
         imageUrl: req.body.imageUrl,
         user: req.userId,
       }
