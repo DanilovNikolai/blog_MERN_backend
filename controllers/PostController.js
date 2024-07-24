@@ -123,12 +123,26 @@ export const update = async (req, res) => {
 export const getLastTags = async (req, res) => {
   try {
     // Находим первые 5 статей в БД
-    const posts = await PostModel.find().limit(3).exec();
+    const posts = await PostModel.find().exec();
     const tags = posts.map((obj) => obj.tags).flat();
-    // Оставляем только уникальные тэги
-    const uniqueTags = [...new Set(tags)].slice(0, 7);
 
-    res.json(uniqueTags);
+    // Подсчитываем количество каждого тега и добавляем в объект acc
+    const tagCounts = tags.reduce((acc, tag) => {
+      if (acc[tag]) {
+        acc[tag] += 1; // Увеличиваем счетчик, если тег уже существует
+      } else {
+        acc[tag] = 1; // Инициализируем счетчик, если тега еще нет
+      }
+      return acc;
+    }, {});
+
+    // Переводим объект в массив
+    const mostPopularTags = Object.entries(tagCounts)
+      .sort((a, b) => b[1] - a[1]) // сортируем теги по количеству встреч
+      .slice(0, 5) // и выбираем первые 5
+      .map((tags) => tags[0]); // Оставляем только название тэга, без количества
+
+    res.json(mostPopularTags);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Не удалось получить тэги' });
