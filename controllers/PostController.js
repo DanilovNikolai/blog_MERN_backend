@@ -4,20 +4,7 @@ export const getAll = async (req, res) => {
   try {
     // Сохраняем в переменную все статьи из БД и связываем эту таблицу с таблицей 'user'
     const posts = await PostModel.find()
-      .populate({ path: 'user', select: ['fullName', 'avatarUrl'] }) // связываемся с таблицей 'user' и оставляем поля 'fullName' и 'avatarUrl'
-      .exec(); // исполняем
-
-    res.json(posts);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: 'Не удалось получить статьи' });
-  }
-};
-
-export const getLatest = async (req, res) => {
-  try {
-    // Сортируем по дате создания поста
-    const posts = await PostModel.find().sort({"createdAt": 1 })
+      .sort({ createdAt: -1 })
       .populate({ path: 'user', select: ['fullName', 'avatarUrl'] }) // связываемся с таблицей 'user' и оставляем поля 'fullName' и 'avatarUrl'
       .exec(); // исполняем
 
@@ -31,7 +18,8 @@ export const getLatest = async (req, res) => {
 export const getPopular = async (req, res) => {
   try {
     // Сортируем по количеству просмотров
-    const posts = await PostModel.find().sort({"viewsCount": -1 })
+    const posts = await PostModel.find()
+      .sort({ viewsCount: -1 })
       .populate({ path: 'user', select: ['fullName', 'avatarUrl'] }) // связываемся с таблицей 'user' и оставляем поля 'fullName' и 'avatarUrl'
       .exec(); // исполняем
 
@@ -135,13 +123,12 @@ export const update = async (req, res) => {
 export const getLastTags = async (req, res) => {
   try {
     // Находим первые 5 статей в БД
-    const posts = await PostModel.find().limit(5).exec();
-    const tags = posts
-      .map((obj) => obj.tags)
-      .flat()
-      .slice(0, 5);
+    const posts = await PostModel.find().limit(3).exec();
+    const tags = posts.map((obj) => obj.tags).flat();
+    // Оставляем только уникальные тэги
+    const uniqueTags = [...new Set(tags)].slice(0, 7);
 
-    res.json(tags);
+    res.json(uniqueTags);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Не удалось получить тэги' });
