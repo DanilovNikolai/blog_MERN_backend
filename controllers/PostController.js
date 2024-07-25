@@ -15,6 +15,26 @@ export const getAll = async (req, res) => {
   }
 };
 
+// Контроллер для получения постов по тегу
+export const getPostsByTags = async (req, res) => {
+  try {
+    // Получаем название тега из параметров URL
+    const { tag } = req.params;
+
+    // Находим все посты, содержащие указанный тег
+    const posts = await PostModel.find({ tags: { $in: [tag] } })
+      .sort({ createdAt: -1 }) // Сортируем по дате создания в порядке убывания
+      .populate({ path: 'user', select: ['fullName', 'avatarUrl'] }) // Связываем с таблицей 'user', выбираем только 'fullName' и 'avatarUrl'
+      .exec(); // Исполняем запрос
+
+    // Отправляем найденные посты на клиент
+    res.json(posts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Не удалось получить статьи' });
+  }
+};
+
 export const getPopular = async (req, res) => {
   try {
     // Сортируем по количеству просмотров
@@ -122,8 +142,9 @@ export const update = async (req, res) => {
 
 export const getLastTags = async (req, res) => {
   try {
-    // Находим первые 5 статей в БД
+    // Находим все статьи в БД
     const posts = await PostModel.find().exec();
+    // Пробегаемся по массивам с тэгами каждого поста и соединяем их в один общий массив
     const tags = posts.map((obj) => obj.tags).flat();
 
     // Подсчитываем количество каждого тега и добавляем в объект acc
