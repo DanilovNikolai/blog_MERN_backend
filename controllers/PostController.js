@@ -22,7 +22,7 @@ export const getPostsByTags = async (req, res) => {
     const { tag } = req.params;
 
     // Находим все посты, содержащие указанный тег
-    const posts = await PostModel.find({ tags: { $in: [tag] } })
+    const posts = await PostModel.find({ tags: tag })
       .sort({ createdAt: -1 }) // Сортируем по дате создания в порядке убывания
       .populate({ path: 'user', select: ['fullName', 'avatarUrl'] }) // Связываем с таблицей 'user', выбираем только 'fullName' и 'avatarUrl'
       .exec(); // Исполняем запрос

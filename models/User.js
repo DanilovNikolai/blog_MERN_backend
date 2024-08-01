@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema(
     avatarUrl: String,
   },
   {
-    timestamps: true,
+    timestamps: true, // автоматическое добавление createdAt и updatedAt
   }
 );
 

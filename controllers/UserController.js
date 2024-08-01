@@ -113,3 +113,31 @@ export const getMe = async (req, res) => {
     res.status(500).json({ message: 'Not available' });
   }
 };
+
+export const update = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const updateData = {};
+    if (req.body.avatarUrl) updateData.avatarUrl = req.body.avatarUrl;
+    if (req.body.email) updateData.email = req.body.email;
+    if (req.body.fullName) updateData.fullName = req.body.fullName;
+
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: userId },
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { passwordHash, ...userData } = updatedUser._doc;
+
+    res.json(userData);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Не удалось обновить пользователя' });
+  }
+};

@@ -45,6 +45,13 @@ app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
 // routes
+app.get('/auth/me', checkAuth, UserController.getMe);
+app.get('/posts', PostController.getAll);
+app.get('/posts/popular', PostController.getPopular);
+app.get('/tags/:tag', PostController.getPostsByTags);
+app.get('/tags', PostController.getLastTags);
+app.get('/posts/:id', PostController.getOne);
+
 app.post(
   '/auth/login',
   loginValidation,
@@ -57,17 +64,14 @@ app.post(
   handleValidationErrors,
   UserController.register
 );
-app.get('/auth/me', checkAuth, UserController.getMe);
 
 app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
   res.json({ url: `/uploads/${req.file.originalname}` });
 });
 
-app.get('/posts', PostController.getAll);
-app.get('/posts/popular', PostController.getPopular);
-app.get('/tags/:tag', PostController.getPostsByTags);
-app.get('/tags', PostController.getLastTags);
-app.get('/posts/:id', PostController.getOne);
 app.post(
   '/posts',
   checkAuth,
@@ -75,7 +79,9 @@ app.post(
   handleValidationErrors,
   PostController.create
 );
+
 app.delete('/posts/:id', checkAuth, PostController.remove);
+
 app.patch(
   '/posts/:id',
   checkAuth,
@@ -83,6 +89,8 @@ app.patch(
   handleValidationErrors,
   PostController.update
 );
+
+app.patch('/users/:id', checkAuth, UserController.update);
 
 // server launch
 app.listen(PORT, (err) => {
