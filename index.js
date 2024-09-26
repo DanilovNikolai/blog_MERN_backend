@@ -56,7 +56,8 @@ app.get('/posts/popular', PostController.getPopular);
 app.get('/tags/:tag', PostController.getPostsByTags);
 app.get('/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
-app.get('/comments', CommentController.getAll);
+app.get('/comments/latest', CommentController.getAll);
+app.get('/posts/:id/comments', CommentController.getByPostId);
 
 app.post(
   '/auth/login',
@@ -64,6 +65,7 @@ app.post(
   handleValidationErrors,
   UserController.login
 );
+
 app.post(
   '/auth/register',
   registerValidation,
