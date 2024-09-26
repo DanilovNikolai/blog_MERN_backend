@@ -10,11 +10,16 @@ import {
   registerValidation,
   loginValidation,
   postCreateValidation,
+  commentCreateValidation,
 } from './validations.js';
 // utils
 import { checkAuth, handleValidationErrors } from './utils/index.js';
 // controllers
-import { UserController, PostController } from './controllers/index.js';
+import {
+  UserController,
+  PostController,
+  CommentController,
+} from './controllers/index.js';
 
 const PORT = process.env.PORT;
 const app = express();
@@ -51,6 +56,7 @@ app.get('/posts/popular', PostController.getPopular);
 app.get('/tags/:tag', PostController.getPostsByTags);
 app.get('/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
+app.get('/comments', CommentController.getAll);
 
 app.post(
   '/auth/login',
@@ -78,6 +84,14 @@ app.post(
   postCreateValidation,
   handleValidationErrors,
   PostController.create
+);
+
+app.post(
+  '/comments',
+  checkAuth,
+  commentCreateValidation,
+  handleValidationErrors,
+  CommentController.create
 );
 
 app.delete('/posts/:id', checkAuth, PostController.remove);
