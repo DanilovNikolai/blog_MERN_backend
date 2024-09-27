@@ -2,12 +2,16 @@ import mongoose from 'mongoose';
 
 const CommentSchema = new mongoose.Schema(
   {
-    user: {
+    fullName: {
+      type: String,
+      required: true,
+    },
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    post: {
+    postId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post', // обратная связь с постом
       required: true,

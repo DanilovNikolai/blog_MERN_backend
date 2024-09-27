@@ -34,14 +34,19 @@ export const getByPostId = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const doc = new CommentModel({
-      user: req.userId,
-      post: req.postId,
+      fullName: req.body.fullName,
+      userId: req.body.userId,
+      postId: req.body.postId,
       text: req.body.text,
-      imageUrl: req.imageUrl,
+      avatarUrl: req.body.avatarUrl,
     });
 
     const comment = await doc.save();
-
+    if (!comment) {
+      console.log('Failed to save comment');
+      return res.status(500).json({ message: 'Комментарий не был сохранен' });
+    }
+    console.log('Comment saved:', comment);
     res.json(comment);
   } catch (err) {
     console.log(err);
