@@ -56,8 +56,7 @@ app.get('/posts/popular', PostController.getPopular);
 app.get('/tags/:tag', PostController.getPostsByTags);
 app.get('/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
-app.get('/comments/latest', CommentController.getAll);
-app.get('/posts/:id/comments', CommentController.getByPostId);
+app.get('/comments', CommentController.getAll);
 
 app.post(
   '/auth/login',

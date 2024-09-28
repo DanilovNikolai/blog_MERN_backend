@@ -24,12 +24,6 @@ const PostSchema = new mongoose.Schema(
       ref: 'User', // Ссылка на модель пользователей
       required: true,
     },
-    comments: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment', // Ссылка на модель комментариев
-      },
-    ],
     imageUrl: String,
   },
   {
