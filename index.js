@@ -21,7 +21,6 @@ import {
   CommentController,
 } from './controllers/index.js';
 
-const PORT = process.env.PORT;
 const app = express();
 
 // Создаем хранилище для загруженных картинок
@@ -38,9 +37,7 @@ const upload = multer({ storage });
 
 // data base connection
 mongoose
-  .connect(
-    `mongodb+srv://Danilov:${process.env.DB_PASSWORD}@test-cluster.9rnehkm.mongodb.net/blog?retryWrites=true&w=majority&appName=Test-cluster`
-  )
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('DB ok'))
   .catch((err) => console.log('DB error', err));
 
@@ -108,7 +105,7 @@ app.patch(
 app.patch('/users/:id', checkAuth, UserController.update);
 
 // server launch
-app.listen(PORT, (err) => {
+app.listen(process.env.PORT || 4444, (err) => {
   if (err) console.log(err);
-  console.log(`Server was started on PORT ${PORT}`);
+  console.log(`Server was started on PORT ${process.env.PORT}`);
 });
