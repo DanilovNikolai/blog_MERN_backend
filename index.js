@@ -1,4 +1,6 @@
 import express from 'express';
+import fs from 'fs';
+// multer
 import multer from 'multer';
 // cors
 import cors from 'cors';
@@ -26,6 +28,9 @@ const app = express();
 // Создаем хранилище для загруженных картинок
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
+    if (!fs.existsSync('uploads')) {
+      fs.mkdirSync('uploads');
+    }
     cb(null, 'uploads');
   },
   filename: (_, file, cb) => {
