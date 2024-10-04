@@ -21,8 +21,7 @@ const CommentSchema = new mongoose.Schema(
       required: true,
     },
     avatarUrl: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
     },
   },
   {
