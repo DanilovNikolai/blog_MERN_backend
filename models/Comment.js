@@ -20,9 +20,6 @@ const CommentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    avatarUrl: {
-      type: String,
-    },
   },
   {
     timestamps: true,

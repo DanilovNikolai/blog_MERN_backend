@@ -3,7 +3,10 @@ import CommentModel from '../models/Comment.js';
 export const getAll = async (req, res) => {
   try {
     // Сохраняем в переменную все статьи из БД и связываем эту таблицу с таблицей 'user'
-    const comments = await CommentModel.find().sort({ createdAt: -1 }).exec(); // исполняем
+    const comments = await CommentModel.find()
+    .populate('userId', 'fullName avatarUrl') // Получаем fullName и avatarUrl пользователя
+    .sort({ createdAt: -1 })
+    .exec(); // исполняем
 
     res.json(comments);
   } catch (err) {
@@ -19,7 +22,6 @@ export const create = async (req, res) => {
       userId: req.body.userId,
       postId: req.body.postId,
       text: req.body.text,
-      avatarUrl: req.body.avatarUrl,
     });
 
     const comment = await doc.save();
