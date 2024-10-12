@@ -1,5 +1,4 @@
 import express from 'express';
-import fs from 'fs';
 // multer
 import multer from 'multer';
 // cors
@@ -27,20 +26,7 @@ import AWS from 'aws-sdk';
 
 const app = express();
 
-// Создаем хранилище для загруженных картинок
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => {
-    if (!fs.existsSync('uploads')) {
-      // Если папки 'uploads' не существует
-      fs.mkdirSync('uploads'); // мы ее создаем
-    }
-    cb(null, 'uploads');
-  },
-  filename: (_, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Настройки для Yandex Object Storage
@@ -51,6 +37,19 @@ const s3 = new AWS.S3({
   region: 'ru-central1', // Регион Яндекса
   s3ForcePathStyle: true, // Принудительное использование пути для бакета
 });
+
+// Функция загрузки файла
+const uploadImage = (file) => {
+  const params = {
+    Bucket: 'bucket-1', // Имя бакета
+    Key: file.originalname, // Имя файла в хранилище
+    Body: file.buffer, // Данные файла
+    ContentType: file.mimetype, // Тип содержимого
+  };
+
+  // Отправка файла в Yandex Object Storage
+  return s3.upload(params).promise();
+};
 
 // data base connection
 mongoose
@@ -86,11 +85,21 @@ app.post(
   UserController.register
 );
 
-app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
+    return res.status(400).json({ message: 'Файл не загружен' });
   }
-  res.json({ url: `/uploads/${req.file.originalname}` });
+
+  try {
+    // Загрузка изображения в Yandex Object Storage
+    await uploadImage(req.file);
+
+    // Возвращаем публичный URL файла
+    const imageUrl = `https://storage.yandexcloud.net/bucket-1/${req.file.originalname}`;
+    res.json({ url: imageUrl });
+  } catch (error) {
+    res.status(500).json({ message: 'Ошибка загрузки', error });
+  }
 });
 
 app.post(
