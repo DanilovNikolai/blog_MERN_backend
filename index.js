@@ -41,7 +41,7 @@ const s3 = new AWS.S3({
 // Функция загрузки файла
 const uploadImage = (file) => {
   const params = {
-    Bucket: 'bucket-1', // Имя бакета
+    Bucket: 'danilov-bucket-1', // Имя бакета
     Key: file.originalname, // Имя файла в хранилище
     Body: file.buffer, // Данные файла
     ContentType: file.mimetype, // Тип содержимого
@@ -95,7 +95,7 @@ app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
     await uploadImage(req.file);
 
     // Возвращаем публичный URL файла
-    const imageUrl = `https://storage.yandexcloud.net/bucket-1/${req.file.originalname}`;
+    const imageUrl = `https://storage.yandexcloud.net/danilov-bucket-1/${req.file.originalname}`;
     res.json({ url: imageUrl });
   } catch (error) {
     res.status(500).json({ message: 'Ошибка загрузки', error });
