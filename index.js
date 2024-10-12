@@ -45,6 +45,7 @@ const uploadImage = (file) => {
     Key: file.originalname, // Имя файла в хранилище
     Body: file.buffer, // Данные файла
     ContentType: file.mimetype, // Тип содержимого
+    ACL: 'public-read', // Делаем файл публичным
   };
 
   // Отправка файла в Yandex Object Storage
