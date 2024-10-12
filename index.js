@@ -22,6 +22,8 @@ import {
   PostController,
   CommentController,
 } from './controllers/index.js';
+// aws-sdk
+import AWS from 'aws-sdk';
 
 const app = express();
 
@@ -29,7 +31,8 @@ const app = express();
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
     if (!fs.existsSync('uploads')) {
-      fs.mkdirSync('uploads');
+      // Если папки 'uploads' не существует
+      fs.mkdirSync('uploads'); // мы ее создаем
     }
     cb(null, 'uploads');
   },
@@ -39,6 +42,15 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+// Настройки для Yandex Object Storage
+const s3 = new AWS.S3({
+  endpoint: 'https://storage.yandexcloud.net', // Обязательно укажите этот endpoint для Яндекс
+  accessKeyId: process.env.YANDEX_ACCESS_KEY, // Ваш access key
+  secretAccessKey: process.env.YANDEX_SECRET_KEY, // Ваш secret key
+  region: 'ru-central1', // Регион Яндекса
+  s3ForcePathStyle: true, // Принудительное использование пути для бакета
+});
 
 // data base connection
 mongoose
