@@ -92,14 +92,13 @@ app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
   }
 
   try {
-    // Загрузка изображения в Yandex Object Storage
-    await uploadImage(req.file);
+    const result = await uploadImage(req.file); // Загружаем файл в Yandex Cloud
+    const imageUrl = result.Location; // Получаем URL от Yandex Cloud
 
-    // Возвращаем публичный URL файла
-    const imageUrl = `https://storage.yandexcloud.net/danilov-bucket-1/${req.file.originalname}`;
     res.json({ url: imageUrl });
   } catch (error) {
-    res.status(500).json({ message: 'Ошибка загрузки', error });
+    console.error('Ошибка загрузки файла:', error);
+    res.status(500).json({ message: 'Ошибка загрузки файла' });
   }
 });
 
