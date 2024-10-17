@@ -120,6 +120,8 @@ app.post(
 
 app.delete('/posts/:id', checkAuth, PostController.remove);
 
+app.delete('/comments/:id', checkAuth, CommentController.remove);
+
 app.patch(
   '/posts/:id',
   checkAuth,

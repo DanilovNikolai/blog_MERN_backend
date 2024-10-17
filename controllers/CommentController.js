@@ -36,3 +36,25 @@ export const create = async (req, res) => {
     res.status(500).json({ message: 'Не удалось создать комментарий' });
   }
 };
+
+export const remove = async (req, res) => {
+  try {
+    const commentId = req.params.id; // сохраняем в postId введенный клиентом параметр query /:id
+
+    CommentModel.findOneAndDelete({ _id: commentId })
+      .then((doc) => {
+        if (!doc) {
+          return res.status(404).json({ message: 'Комментарий не найден' });
+        }
+
+        res.json({ success: true });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({ message: 'Не удалось удалить комментарий' });
+      });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Не удалось удалить комментарий' });
+  }
+};
