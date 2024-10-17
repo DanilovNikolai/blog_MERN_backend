@@ -21,8 +21,8 @@ import {
   PostController,
   CommentController,
 } from './controllers/index.js';
-// aws-sdk
-import AWS from 'aws-sdk';
+// aws-sdk (v3)
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 const app = express();
 
@@ -30,33 +30,42 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Настройки для Yandex Object Storage
-const s3 = new AWS.S3({
-  endpoint: 'https://storage.yandexcloud.net', // Обязательно укажите этот endpoint для Яндекс
-  accessKeyId: process.env.YANDEX_ACCESS_KEY, // Ваш access key
-  secretAccessKey: process.env.YANDEX_SECRET_KEY, // Ваш secret key
-  region: 'ru-central1', // Регион Яндекса
-  s3ForcePathStyle: true, // Принудительное использование пути для бакета
+const s3Client = new S3Client({
+  endpoint: 'https://storage.yandexcloud.net',
+  region: 'ru-central1',
+  credentials: {
+    accessKeyId: process.env.YANDEX_ACCESS_KEY,
+    secretAccessKey: process.env.YANDEX_SECRET_KEY,
+  },
 });
 
 // Функция загрузки файла
-const uploadImage = (file) => {
+const uploadImage = async (file) => {
   const params = {
-    Bucket: 'danilov-bucket-1', // Имя бакета
-    Key: file.originalname, // Имя файла в хранилище
-    Body: file.buffer, // Данные файла
-    ContentType: file.mimetype, // Тип содержимого
-    ACL: 'public-read', // Делаем файл публичным
+    Bucket: 'danilov-bucket-1',
+    Key: file.originalname,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+    ACL: 'public-read',
   };
 
   // Отправка файла в Yandex Object Storage
-  return s3.upload(params).promise();
+  try {
+    const command = new PutObjectCommand(params);
+    await s3Client.send(command); // Загружаем файл
+    const imageUrl = `https://storage.yandexcloud.net/danilov-bucket-1/${file.originalname}`; // Формируем URL
+    return { Location: imageUrl }; // Возвращаем объект с Location
+  } catch (error) {
+    console.error('Ошибка загрузки файла:', error);
+    throw error;
+  }
 };
 
 // data base connection
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => console.log('DB ok'))
-  .catch((err) => console.log('DB error', err));
+  .then(() => console.log('MongoDB connection: success'))
+  .catch((err) => console.log('MongoDB connection: failed', err));
 
 // middleware (for reading req.body)
 app.use(express.json());
@@ -93,9 +102,8 @@ app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
 
   try {
     const result = await uploadImage(req.file); // Загружаем файл в Yandex Cloud
-    const imageUrl = result.Location; // Получаем URL от Yandex Cloud
 
-    res.json({ url: imageUrl });
+    res.json({ url: result.Location });
   } catch (error) {
     console.error('Ошибка загрузки файла:', error);
     res.status(500).json({ message: 'Ошибка загрузки файла' });
