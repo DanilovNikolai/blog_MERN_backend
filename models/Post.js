@@ -19,6 +19,11 @@ const PostSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    likesCount: {
+      type: Number,
+      default: 0,
+    },
+    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Массив пользователей, которые лайкнули пост
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User', // Ссылка на модель пользователей

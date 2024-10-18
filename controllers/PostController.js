@@ -169,3 +169,38 @@ export const getLastTags = async (req, res) => {
     res.status(500).json({ message: 'Не удалось получить тэги' });
   }
 };
+
+export const toggleLikePost = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const userId = req.userId;
+
+    // Находим пост по ID
+    const post = await PostModel.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Пост не найден' });
+    }
+
+    // Проверяем, лайкнул ли пользователь этот пост
+    const isLiked = post.likedBy.includes(userId);
+    // если да, то
+    if (isLiked) {
+      // Убираем лайк, если пользователь уже был в массиве и уменьшаем общее количество лайков на 1
+      post.likedBy = post.likedBy.filter((id) => id.toString() !== userId);
+      post.likesCount -= 1;
+    } else {
+      // Добавляем лайк
+      post.likedBy.push(userId);
+      post.likesCount += 1;
+    }
+
+    // Сохраняем изменения
+    await post.save();
+
+    res.json({ success: true, likesCount: post.likesCount });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Не удалось изменить лайк' });
+  }
+};

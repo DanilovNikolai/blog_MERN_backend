@@ -138,6 +138,8 @@ app.patch(
   PostController.update
 );
 
+app.patch('/posts/:id/like', checkAuth, PostController.toggleLikePost);
+
 app.patch('/users/:id', checkAuth, UserController.update);
 
 // server launch
