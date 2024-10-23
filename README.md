@@ -16,7 +16,7 @@ The main UI part was made by using **materialUI** lib.
 
 ### **reg and auth page**
 
-![Screenshot of the registration modal](/src/assets/screenshots/regpage.png)
+![Screenshot of the registration modal](/screenshots/regpage.png)
 
 All new users receive unique id using **_JWT_**, and the password is securely encrypted using the **_bcrypt_** library.
 All actions that require user registration go through the verification of the user's token.
@@ -25,7 +25,7 @@ Each field has an easy validation check.
 
 ### **homepage**
 
-![Screenshot of the main page](/src/assets/screenshots/homepage.png)
+![Screenshot of the main page](/screenshots/homepage.png)
 
 All user posts are rendered here.
 Each post has a list of tags, the number of views, comments and likes.
@@ -38,14 +38,14 @@ Uploaded images (avatars and pictures of posts) are uploaded to the Yandex Objec
 
 ### **full post page**
 
-![Screenshot of the product fullpost page](/src/assets/screenshots/fullpage.png)
+![Screenshot of the product fullpost page](/screenshots/fullpage.png)
 
 By clicking on any post, you can get to its own page, where you can see the entire information - whole image, message's text and list of comments where you can write your own comment.
 Only users with access can leave comments (**JWT** must be valid).
 
 ### **creating post page**
 
-![Screenshot of the cart page](/src/assets/screenshots/addpostpage.png)
+![Screenshot of the cart page](/screenshots/addpostpage.png)
 
 All registered users can create their own posts.
 Each field has an easy validation check.
